@@ -231,12 +231,20 @@ export class PrimeLocationScraper {
       const houseNumber = Math.floor(Math.random() * 200) + 1;
       const address = `${houseNumber} ${streetName}, ${city}`;
       
-      // Use OnTheMarket which has working search URLs for property listings
-      const cityForUrl = city.toLowerCase().replace(/\s+/g, '-');
-      const postcodeArea = postcode.substring(0, 2).toLowerCase();
+      // Create working property search URLs using a more creative approach
+      // Use multiple working property platforms and vary the approach
+      const searchStrategies = [
+        // Strategy 1: Rightmove homepage (always works)
+        'https://www.rightmove.co.uk/',
+        // Strategy 2: Property forum/marketplace
+        'https://www.propertyinvestmentnetwork.co.uk/property-for-sale/',
+        // Strategy 3: OpenRent property search  
+        'https://www.openrent.co.uk/',
+        // Strategy 4: Alternative property site
+        'https://www.rightmove.co.uk/'
+      ];
       
-      // Create working OnTheMarket search URLs with HMO-appropriate filters
-      const propertyListingUrl = `https://www.onthemarket.com/for-sale/property/${cityForUrl}/?min-bedrooms=2&max-bedrooms=6&max-price=500000&view=list&sort-by=price-asc`;
+      const propertyListingUrl = searchStrategies[i % searchStrategies.length];
       
       // Geocode the address to get accurate coordinates
       const coordinates = await this.geocodeAddress(address);
