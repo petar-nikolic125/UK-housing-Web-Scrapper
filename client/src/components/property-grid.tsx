@@ -7,9 +7,10 @@ import { type Property, type PropertyFilters } from "@shared/schema";
 
 interface PropertyGridProps {
   filters: PropertyFilters;
+  onFiltersChange?: (filters: PropertyFilters) => void;
 }
 
-export default function PropertyGrid({ filters }: PropertyGridProps) {
+export default function PropertyGrid({ filters, onFiltersChange }: PropertyGridProps) {
   const { data: properties = [], isLoading, error } = useQuery<Property[]>({
     queryKey: ["/api/properties", filters],
     queryFn: async () => {
@@ -30,8 +31,9 @@ export default function PropertyGrid({ filters }: PropertyGridProps) {
   });
 
   const handleSortChange = (sortBy: string) => {
-    // This would be handled by the parent component
-    console.log('Sort changed to:', sortBy);
+    if (onFiltersChange) {
+      onFiltersChange({ ...filters, sortBy: sortBy as PropertyFilters['sortBy'] });
+    }
   };
 
   if (error) {
@@ -62,7 +64,7 @@ export default function PropertyGrid({ filters }: PropertyGridProps) {
         </div>
         <div className="flex items-center space-x-3">
           <span className="text-sm text-secondary">Sort by:</span>
-          <Select defaultValue="profit" onValueChange={handleSortChange}>
+          <Select value={filters.sortBy || "profit"} onValueChange={handleSortChange}>
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>

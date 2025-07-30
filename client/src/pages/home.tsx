@@ -25,7 +25,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <ScraperInterface />
       </div>
-      <PropertyGrid filters={filters} />
+      <PropertyGrid filters={filters} onFiltersChange={setFilters} />
       <Footer />
     </div>
   );
