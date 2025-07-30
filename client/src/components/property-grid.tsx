@@ -58,7 +58,7 @@ export default function PropertyGrid({ filters, onFiltersChange }: PropertyGridP
             <Skeleton className="h-4 w-64 mt-1" />
           ) : (
             <p className="text-secondary mt-1">
-              Found {properties.length} profitable HMO opportunities • Live scraped data from multiple property sites
+              Found {properties.length} profitable HMO opportunities • {properties.length < 6 ? 'Showing similar properties within expanded criteria • ' : ''}Live scraped data from multiple property sites
             </p>
           )}
         </div>
