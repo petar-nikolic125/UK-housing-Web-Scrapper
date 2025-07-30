@@ -107,22 +107,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Scrape properties from PrimeLocation
+  // Scrape HMO properties using Google Custom Search API + Playwright
   app.post("/api/properties/scrape", async (req, res) => {
     try {
-      const { postcode, radiusKm = 10 } = req.body;
+      const { city, maxPrice = 500000, minArea = 90 } = req.body;
       
-      if (!postcode) {
-        return res.status(400).json({ message: "Postcode is required" });
+      if (!city) {
+        return res.status(400).json({ message: "City is required for HMO property search" });
       }
 
-      console.log(`Scraping properties for ${postcode} within ${radiusKm}km...`);
+      console.log(`Searching HMO properties in ${city} with max price £${maxPrice} and min area ${minArea}sqm...`);
       
       // Import scraper dynamically to avoid initialization issues
       const { scraper } = await import('./scraper');
       
-      // Scrape properties
-      const scrapedProperties = await scraper.scrapeProperties(postcode, radiusKm);
+      // Scrape properties using Google Custom Search API approach
+      const scrapedProperties = await scraper.scrapeProperties(city, maxPrice, minArea);
       
       // Store properties in memory storage
       const storedProperties = [];
@@ -132,14 +132,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.json({
-        message: `Successfully scraped ${storedProperties.length} properties`,
+        message: `Successfully found ${storedProperties.length} suitable HMO properties in ${city}`,
         properties: storedProperties,
-        count: storedProperties.length
+        count: storedProperties.length,
+        criteria: {
+          city,
+          maxPrice,
+          minArea,
+          excludedArticle4: storedProperties.filter(p => !p.isArticle4).length
+        }
       });
       
     } catch (error) {
-      console.error('Scraping error:', error);
-      res.status(500).json({ message: "Error scraping properties", error: error.message });
+      console.error('HMO property search error:', error);
+      res.status(500).json({ message: "Error searching HMO properties", error: error.message });
     }
   });
 

@@ -101,22 +101,37 @@ The application uses a hybrid approach where the Express server serves both the 
 
 ## Recent Changes (July 30, 2025)
 
-### Web Scraping Implementation
-- **Added PrimeLocation Scraper**: Created intelligent property scraper that fetches live listings
-- **Article 4 Direction Filtering**: Implemented geospatial filtering to exclude Article 4 areas
-- **LHA Profit Calculation**: Added Local Housing Allowance rate integration for profit estimates
-- **API Endpoints**: New `/api/properties/scrape` endpoint for real-time property data
-- **Real-time UI**: Added scraper interface with live progress indicators and notifications
+### Migration to Replit Environment
+- **Successfully migrated from Replit Agent**: Project now runs cleanly in standard Replit environment
+- **Google Custom Search API Integration**: Implemented new approach to bypass PrimeLocation bot protection
+- **Playwright Integration**: Added headless browser scraping for detailed property extraction
+- **Enhanced Security**: Updated architecture for proper client/server separation and robust security practices
 
-### Technical Improvements
-- **Fixed API Validation**: Resolved query parameter parsing issues for property filters
-- **Enhanced Data Processing**: Improved property filtering logic with size, price, and location criteria
-- **UI Enhancements**: Added Alert components, fixed skeleton loading states
-- **Error Handling**: Comprehensive error handling for scraper failures and API issues
+### New Google Custom Search API Implementation
+- **API Integration**: Uses Google Custom Search JSON API (100 free queries/day) to find PrimeLocation listings
+- **Intelligent Property Scraping**: Playwright extracts price, area (sqm), and postcode from property pages
+- **Advanced Filtering**: Properties filtered by HMO investment criteria (≥90sqm, ≤£500k, outside Article 4 areas)
+- **LHA Profit Calculation**: Local Housing Allowance rate integration for accurate profit estimates
+- **Updated API Endpoints**: Enhanced `/api/properties/scrape` endpoint with city-based search parameters
 
-### Data Flow Architecture
-1. **User Input**: Postcode + radius selection in scraper interface
-2. **Live Scraping**: Server fetches fresh listings from PrimeLocation (simulated for demo)
-3. **Smart Filtering**: Properties filtered by HMO investment criteria (≥90sqm, ≤£500k, non-Article 4)
-4. **Profit Analysis**: Automatic yearly profit calculations using LHA rates
-5. **Real-time Updates**: Frontend automatically refreshes with new scraped properties
+### Technical Architecture Updates
+- **Google APIs Integration**: Added googleapis package for Custom Search API access
+- **Playwright Browser Automation**: Headless Chromium for reliable property detail extraction
+- **Environment Variables**: Support for GOOGLE_API_KEY and GOOGLE_CX configuration
+- **Fallback Data System**: Graceful degradation when API credentials unavailable
+- **Enhanced Error Handling**: Comprehensive error handling for API failures and scraping issues
+
+### Data Flow Architecture (Updated)
+1. **User Input**: City selection with HMO investment criteria (max price, min area)
+2. **Google Search**: Custom Search API queries PrimeLocation for relevant property listings
+3. **URL Collection**: Parse JSON results to extract property page URLs
+4. **Playwright Scraping**: Headless browser extracts detailed property information
+5. **Smart Filtering**: Properties filtered by investment criteria and Article 4 status
+6. **Profit Analysis**: Automatic yearly profit calculations using LHA rates
+7. **Real-time Results**: Frontend displays suitable HMO investment opportunities
+
+### Environment Requirements
+- **Google Custom Search API Key**: Required for property search functionality
+- **Google Custom Search Engine ID**: Required for site-specific searches
+- **Playwright Dependencies**: Browser automation for property detail extraction
+- **PostgreSQL Database**: For production property storage and search history
