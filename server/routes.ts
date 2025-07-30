@@ -5,11 +5,11 @@ import { insertSearchSchema, type PropertyFilters } from "@shared/schema";
 import { z } from "zod";
 
 const searchFiltersSchema = z.object({
-  query: z.string().optional(),
-  radius: z.number().optional(),
-  maxPrice: z.number().optional(),
-  minSize: z.number().optional(),
-  excludeArticle4: z.boolean().optional(),
+  query: z.string().default(""),
+  radius: z.coerce.number().default(10),
+  maxPrice: z.coerce.number().optional(),
+  minSize: z.coerce.number().optional(),
+  excludeArticle4: z.coerce.boolean().optional(),
   sortBy: z.enum(['profit', 'price', 'size', 'recent']).optional(),
 });
 
@@ -17,11 +17,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all properties with optional filters
   app.get("/api/properties", async (req, res) => {
     try {
-      const filters = searchFiltersSchema.parse(req.query);
+      // Parse query parameters manually to handle string to number conversion
+      const rawFilters = req.query;
+      const filters: PropertyFilters = {
+        query: rawFilters.query as string || "",
+        radius: rawFilters.radius ? parseInt(rawFilters.radius as string) : 10,
+        maxPrice: rawFilters.maxPrice ? parseInt(rawFilters.maxPrice as string) : undefined,
+        minSize: rawFilters.minSize ? parseInt(rawFilters.minSize as string) : undefined,
+        excludeArticle4: rawFilters.excludeArticle4 === 'true',
+        sortBy: rawFilters.sortBy as PropertyFilters['sortBy']
+      };
+      
       const properties = await storage.getProperties(filters);
       res.json(properties);
     } catch (error) {
-      res.status(400).json({ message: "Invalid filters", error });
+      console.error('Error fetching properties:', error);
+      res.status(500).json({ message: "Error fetching properties", error: error.message });
     }
   });
 
@@ -93,6 +104,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(searches);
     } catch (error) {
       res.status(500).json({ message: "Error fetching searches", error });
+    }
+  });
+
+  // Scrape properties from PrimeLocation
+  app.post("/api/properties/scrape", async (req, res) => {
+    try {
+      const { postcode, radiusKm = 10 } = req.body;
+      
+      if (!postcode) {
+        return res.status(400).json({ message: "Postcode is required" });
+      }
+
+      console.log(`Scraping properties for ${postcode} within ${radiusKm}km...`);
+      
+      // Import scraper dynamically to avoid initialization issues
+      const { scraper } = await import('./scraper');
+      
+      // Scrape properties
+      const scrapedProperties = await scraper.scrapeProperties(postcode, radiusKm);
+      
+      // Store properties in memory storage
+      const storedProperties = [];
+      for (const property of scrapedProperties) {
+        const stored = await storage.createProperty(property);
+        storedProperties.push(stored);
+      }
+      
+      res.json({
+        message: `Successfully scraped ${storedProperties.length} properties`,
+        properties: storedProperties,
+        count: storedProperties.length
+      });
+      
+    } catch (error) {
+      console.error('Scraping error:', error);
+      res.status(500).json({ message: "Error scraping properties", error: error.message });
     }
   });
 

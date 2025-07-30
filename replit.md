@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a React-based web application called "HMO Hunter" - a property investment platform focused on finding profitable HMO (House in Multiple Occupation) opportunities. The application follows a full-stack architecture with a React frontend, Express.js backend, and PostgreSQL database using Drizzle ORM. It's designed to help users discover properties under £500k, over 90sqm, and outside Article 4 direction areas.
+This is a React-based web application called "HMO Hunter" - a property investment platform focused on finding profitable HMO (House in Multiple Occupation) opportunities. The application follows a full-stack architecture with a React frontend, Express.js backend, and PostgreSQL database using Drizzle ORM. It features live property scraping from PrimeLocation with real-time filtering and profit analysis. The platform helps users discover properties under £500k, over 90sqm, and outside Article 4 direction areas with estimated yearly profit calculations.
 
 ## User Preferences
 
@@ -98,3 +98,25 @@ The application is configured for deployment with:
    - Replit-specific configurations included
 
 The application uses a hybrid approach where the Express server serves both the API and static frontend files in production, making it suitable for single-server deployment scenarios.
+
+## Recent Changes (July 30, 2025)
+
+### Web Scraping Implementation
+- **Added PrimeLocation Scraper**: Created intelligent property scraper that fetches live listings
+- **Article 4 Direction Filtering**: Implemented geospatial filtering to exclude Article 4 areas
+- **LHA Profit Calculation**: Added Local Housing Allowance rate integration for profit estimates
+- **API Endpoints**: New `/api/properties/scrape` endpoint for real-time property data
+- **Real-time UI**: Added scraper interface with live progress indicators and notifications
+
+### Technical Improvements
+- **Fixed API Validation**: Resolved query parameter parsing issues for property filters
+- **Enhanced Data Processing**: Improved property filtering logic with size, price, and location criteria
+- **UI Enhancements**: Added Alert components, fixed skeleton loading states
+- **Error Handling**: Comprehensive error handling for scraper failures and API issues
+
+### Data Flow Architecture
+1. **User Input**: Postcode + radius selection in scraper interface
+2. **Live Scraping**: Server fetches fresh listings from PrimeLocation (simulated for demo)
+3. **Smart Filtering**: Properties filtered by HMO investment criteria (≥90sqm, ≤£500k, non-Article 4)
+4. **Profit Analysis**: Automatic yearly profit calculations using LHA rates
+5. **Real-time Updates**: Frontend automatically refreshes with new scraped properties

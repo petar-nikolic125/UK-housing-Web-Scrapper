@@ -1,0 +1,90 @@
+🕸️  CORE OBJECTIVE
+Build the missing web‑scraping layer for **HMO Hunter** so the UI stops showing
+“Error loading properties” and instead displays fresh, live listings that satisfy
+Nathan Fonteijn’s investment rules.
+
+─────────────────────────────────────────────────
+1. WHAT THE CLIENT ACTUALLY WANTS
+─────────────────────────────────────────────────
+• Source: live properties from **PrimeLocation.com** (phase 1).  
+  (Later we’ll plug in Zoopla and Rightmove, but PrimeLocation is essential now.)
+
+• Automatic filters, applied server‑side:
+  ◻  Floor area ≥ 90 sqm  
+  ◻  Asking price ≤ £500 000  
+  ◻  Outside any **Article 4 Direction** boundary                  → GeoJSON supplied  
+  ◻  (Optional) attach **yearly profit** using Local Housing Allowance (LHA) caps
+
+• Search parameters for the end user:
+  – UK postcode **or** town name  
+  – Radius in km (e.g. 5 km)  
+
+• Visible in the React UI:
+  – A card per listing with price (green), size badge (blue), “Non‑Article 4”
+    badge (green), beds/baths, description snippet, and
+    **“View on PrimeLocation”** link.
+  – If LHA data attached, show “Yearly Profit: £NN,NNN”.
+
+─────────────────────────────────────────────────
+2. DATA FLOW WE NEED THE SCRAPER TO ACHIEVE
+─────────────────────────────────────────────────
+POST /api/properties/scrape?postcode=B1&radiusKm=5
+        │
+        ▼
+(1) Generate PrimeLocation search URL(s) using postcode & radius
+(2) Iterate result pages
+(3) For each card:
+     • Extract link → open detail page if needed
+     • Parse price, size (sqm or convert from sq ft), beds, baths, lat/lon
+(4) Push raw rows → processor:
+     • Filter by size & price
+     • Point‑in‑polygon test against Article 4 GeoJSON
+     • Attach LHA profit if postcode ⇢ BRMA match found
+(5) Upsert final rows into SQLite with timestamp
+(6) Return JSON array to caller
+           ▼
+GET /api/properties
+           ▼
+React UI renders cards (no more error!)
+
+─────────────────────────────────────────────────
+3. TECH CONSTRAINTS & FREEDOM
+─────────────────────────────────────────────────
+👩‍💻  **Language / libraries** – your call.  
+     • Python + Playwright  *or*  Node + Puppeteer are both fine in Replit.  
+     • Use whatever HTML parser (Cheerio, BeautifulSoup, etc.) you prefer.  
+     • Persist in SQLite for dev; ENV var can point to Postgres later.
+
+🛑  **Anti‑blocking must‑dos**
+     • Identify as “HMO‑Hunter/1.0 (+email)”.  
+     • Max 3 concurrent pages, 2‑sec delay between navigations.  
+     • Honour robots.txt; skip disallowed paths.  
+     • Retry w/ exponential back‑off on 429/5xx.
+
+📅  **Freshness** – listings in DB should never be older than 2 hours.  
+     • Add a cron (node‑cron, APScheduler, etc.) to trigger the scraper hourly.
+
+🔐  **Secrets** – read from `process.env.*` (Replit Secrets Manager):
+     PRIMELOCATION_COOKIE, ARTICLE4_GEOJSON=/data/Article4.geojson,
+     LHA_CSV=/data/lha.csv, DB_PATH
+
+🏃 **Run workflow** – one command triggered by Replit’s **Run** button:
+     • Spin up scraper API on `process.env.PORT`
+     • (Optionally) start React dev server on port 5173 with concurrently  
+       Replit will proxy; preview URL must serve the React app.
+
+─────────────────────────────────────────────────
+4. TEST HOOKS (so we know it works)
+─────────────────────────────────────────────────
+# trigger scrape for SW1A 5 km radius
+curl -X POST $REPLIT_URL/api/properties/scrape?postcode=SW1A&radiusKm=5
+
+# should return ≥1 JSON row matching the filters
+curl $REPLIT_URL/api/properties
+
+If the second call returns a non‑empty array, the UI will populate without errors.
+
+─────────────────────────────────────────────────
+Deliver this and the project meets the client’s **essential** requirement:
+“collect live PrimeLocation data, filter by 90 sqm / £500 k / non‑Article 4,
+and show it in the site.”

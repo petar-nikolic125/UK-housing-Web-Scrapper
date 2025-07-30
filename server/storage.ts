@@ -194,7 +194,7 @@ export class MemStorage implements IStorage {
             properties.sort((a, b) => b.size - a.size);
             break;
           case 'recent':
-            properties.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+            properties.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
             break;
         }
       }
@@ -241,7 +241,7 @@ export class MemStorage implements IStorage {
   async getRecentSearches(limit = 10): Promise<Search[]> {
     const searches = Array.from(this.searches.values());
     return searches
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
       .slice(0, limit);
   }
 

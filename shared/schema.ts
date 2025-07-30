@@ -51,8 +51,8 @@ export type Search = typeof searches.$inferSelect;
 
 // Search filters interface
 export interface PropertyFilters {
-  query: string;
-  radius: number;
+  query?: string;
+  radius?: number;
   maxPrice?: number;
   minSize?: number;
   excludeArticle4?: boolean;

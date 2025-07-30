@@ -52,13 +52,13 @@ export default function PropertyGrid({ filters }: PropertyGridProps) {
           <h2 className="text-2xl font-bold text-primary">
             HMO Properties in {filters.query || 'UK'}
           </h2>
-          <p className="text-secondary mt-1">
-            {isLoading ? (
-              <Skeleton className="h-4 w-64" />
-            ) : (
-              `Found ${properties.length} profitable HMO opportunities • Updated 2 minutes ago`
-            )}
-          </p>
+          {isLoading ? (
+            <Skeleton className="h-4 w-64 mt-1" />
+          ) : (
+            <p className="text-secondary mt-1">
+              Found {properties.length} profitable HMO opportunities • Updated 2 minutes ago
+            </p>
+          )}
         </div>
         <div className="flex items-center space-x-3">
           <span className="text-sm text-secondary">Sort by:</span>

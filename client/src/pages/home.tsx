@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Header from "@/components/header";
 import SearchInterface from "@/components/search-interface";
+import ScraperInterface from "@/components/scraper-interface";
 import PropertyGrid from "@/components/property-grid";
 import Footer from "@/components/footer";
 import { type PropertyFilters } from "@shared/schema";
@@ -21,6 +22,9 @@ export default function Home() {
         filters={filters} 
         onFiltersChange={setFilters} 
       />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <ScraperInterface />
+      </div>
       <PropertyGrid filters={filters} />
       <Footer />
     </div>
