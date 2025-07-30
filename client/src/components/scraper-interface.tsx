@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Download, AlertCircle } from "lucide-react";
+import { Search, Download, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +19,40 @@ export default function ScraperInterface() {
   const [minArea, setMinArea] = useState("90");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const refreshMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/properties/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city: 'Birmingham' })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to refresh properties');
+      }
+      
+      return response.json() as Promise<ScrapeResponse>;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Properties Refreshed Successfully",
+        description: `Updated with ${data.count} fresh properties from scraped sites`,
+      });
+      
+      // Invalidate properties cache to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Refresh Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   const scrapeMutation = useMutation({
     mutationFn: async ({ city, maxPrice, minArea }: { city: string; maxPrice: number; minArea: number }) => {
@@ -129,33 +163,62 @@ export default function ScraperInterface() {
           Filters: Article 4 areas excluded • HMO suitable properties only
         </div>
 
-        <Button
-          onClick={handleScrape}
-          disabled={scrapeMutation.isPending}
-          className="bg-white text-hmo-green hover:bg-gray-100 font-medium px-6"
-        >
-          {scrapeMutation.isPending ? (
-            <>
-              <Search className="animate-spin mr-2" size={16} />
-              Searching...
-            </>
-          ) : (
-            <>
-              <Search className="mr-2" size={16} />
-              Find Properties
-            </>
-          )}
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            onClick={handleScrape}
+            disabled={scrapeMutation.isPending}
+            className="bg-white text-hmo-green hover:bg-gray-100 font-medium px-6"
+          >
+            {scrapeMutation.isPending ? (
+              <>
+                <Search className="animate-spin mr-2" size={16} />
+                Searching...
+              </>
+            ) : (
+              <>
+                <Search className="mr-2" size={16} />
+                Find Properties
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={() => refreshMutation.mutate()}
+            disabled={refreshMutation.isPending}
+            variant="outline"
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20 font-medium px-4"
+          >
+            {refreshMutation.isPending ? (
+              <>
+                <RefreshCw className="animate-spin mr-2" size={16} />
+                Updating...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="mr-2" size={16} />
+                Refresh
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
-      {scrapeMutation.isPending && (
+      {(scrapeMutation.isPending || refreshMutation.isPending) && (
         <Alert className="mt-4 bg-white/10 border-white/20 text-white">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Searching Rightmove, Zoopla, and other property sites for HMO opportunities... This may take 10-30 seconds.
+            {scrapeMutation.isPending 
+              ? "Searching Rightmove, Zoopla, and other property sites for HMO opportunities... This may take 10-30 seconds."
+              : "Refreshing properties with new scraped data from multiple property sites... This may take 15-30 seconds."
+            }
           </AlertDescription>
         </Alert>
       )}
+
+      <div className="mt-4 text-xs text-green-100 opacity-75">
+        Properties auto-refresh every 5 minutes with fresh data from property sites • 
+        Last updated: {new Date().toLocaleTimeString()}
+      </div>
     </div>
   );
 }

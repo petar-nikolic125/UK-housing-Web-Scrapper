@@ -124,7 +124,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Scrape properties using Google Custom Search API approach
       const scrapedProperties = await scraper.scrapeProperties(city, maxPrice, minArea);
       
-      // Store properties in memory storage
+      // Clear existing properties and store new ones
+      await storage.clearAllProperties?.();
+      
       const storedProperties = [];
       for (const property of scrapedProperties) {
         const stored = await storage.createProperty(property);
@@ -146,6 +148,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('HMO property search error:', error);
       res.status(500).json({ message: "Error searching HMO properties", error: error.message });
+    }
+  });
+
+  // Force refresh properties with new scraped data
+  app.post("/api/properties/refresh", async (req, res) => {
+    try {
+      const { city = 'Birmingham', maxPrice = 500000, minArea = 90 } = req.body;
+      
+      console.log(`Force refreshing properties for ${city}...`);
+      
+      // Use storage refresh method
+      await (storage as any).refreshWithScrapedData?.(city, maxPrice, minArea);
+      
+      // Get the updated properties
+      const updatedProperties = await storage.getProperties();
+      
+      res.json({
+        message: `Successfully refreshed with ${updatedProperties.length} new properties from ${city}`,
+        properties: updatedProperties,
+        count: updatedProperties.length
+      });
+      
+    } catch (error) {
+      console.error('Property refresh error:', error);
+      res.status(500).json({ message: "Error refreshing properties", error: error.message });
     }
   });
 

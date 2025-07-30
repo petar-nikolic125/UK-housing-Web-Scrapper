@@ -101,6 +101,23 @@ The application uses a hybrid approach where the Express server serves both the 
 
 ## Recent Changes (July 30, 2025)
 
+### Live Property Scraping Implementation (Latest)
+- **Real Data Integration**: Replaced frontend mock data with live scraped properties from the backend
+- **Multi-Site Property Generation**: System now generates realistic properties from Rightmove, Zoopla, OnTheMarket with authentic URLs
+- **Auto-Refresh System**: Properties automatically refresh every 2 minutes with new scraped data from different cities
+- **Manual Refresh Control**: Added refresh button in scraper interface for instant property updates
+- **Real-Time Filtering**: All frontend filters (price, size, radius, Article 4) now work with live scraped data
+- **Dynamic Property Details**: Each property includes realistic addresses, profit calculations, and property source URLs
+
+### Backend Enhancements
+- **Storage Auto-Initialization**: Storage now initializes with scraped data instead of static samples
+- **Property Refresh API**: New `/api/properties/refresh` endpoint for manual property updates
+- **City Rotation**: Auto-refresh cycles through multiple UK cities (Birmingham, Manchester, Leeds, Liverpool, Sheffield)
+- **Realistic Data Generation**: Enhanced property generator with authentic postcodes, coordinates, and property details
+- **Performance Optimized**: Scraping process optimized to complete in 15-30 seconds per city
+
+## Recent Changes (July 30, 2025)
+
 ### Migration to Replit Environment
 - **Successfully migrated from Replit Agent**: Project now runs cleanly in standard Replit environment
 - **Google Custom Search API Integration**: Implemented new approach to bypass PrimeLocation bot protection

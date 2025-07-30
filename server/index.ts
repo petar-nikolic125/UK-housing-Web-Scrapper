@@ -37,6 +37,20 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Auto-refresh properties every 2 minutes with new scraped data for demo purposes
+  setInterval(async () => {
+    try {
+      const cities = ['Birmingham', 'Manchester', 'Leeds', 'Liverpool', 'Sheffield'];
+      const randomCity = cities[Math.floor(Math.random() * cities.length)];
+      
+      const { storage } = await import('./storage');
+      await (storage as any).refreshWithScrapedData?.(randomCity, 500000, 90);
+      console.log(`Auto-refreshed properties with new scraped data from ${randomCity}`);
+    } catch (error) {
+      console.error('Failed to auto-refresh properties:', error);
+    }
+  }, 2 * 60 * 1000); // 2 minutes for demo
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

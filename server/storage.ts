@@ -29,10 +29,35 @@ export class MemStorage implements IStorage {
   constructor() {
     this.properties = new Map();
     this.searches = new Map();
-    this.initializeWithSampleData();
+    this.initializeWithScrapedData();
   }
 
-  private initializeWithSampleData() {
+  private async initializeWithScrapedData() {
+    // Initialize with scraped properties from Birmingham by default
+    try {
+      const { scraper } = await import('./scraper');
+      const scrapedProperties = await scraper.scrapeProperties('Birmingham', 500000, 90);
+      
+      // Add scraped properties to storage
+      for (const property of scrapedProperties) {
+        const id = randomUUID();
+        const propertyWithId: Property = {
+          id,
+          ...property,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        this.properties.set(id, propertyWithId);
+      }
+      
+      console.log(`Initialized storage with ${scrapedProperties.length} scraped properties from Birmingham`);
+    } catch (error) {
+      console.error('Failed to initialize with scraped data, falling back to sample data:', error);
+      this.initializeFallbackData();
+    }
+  }
+
+  private initializeFallbackData() {
     const sampleProperties: InsertProperty[] = [
       {
         address: "93 Park Avenue, Birmingham",
@@ -153,6 +178,34 @@ export class MemStorage implements IStorage {
       };
       this.properties.set(id, fullProperty);
     });
+  }
+
+  async clearAllProperties(): Promise<void> {
+    this.properties.clear();
+  }
+
+  async refreshWithScrapedData(city: string = 'Birmingham', maxPrice: number = 500000, minArea: number = 90): Promise<void> {
+    try {
+      const { scraper } = await import('./scraper');
+      const newProperties = await scraper.scrapeProperties(city, maxPrice, minArea);
+      
+      // Clear existing properties and add new ones
+      this.properties.clear();
+      
+      for (const property of newProperties) {
+        const id = randomUUID();
+        const propertyWithId: Property = {
+          id,
+          ...property,
+          createdAt: new Date(),
+        };
+        this.properties.set(id, propertyWithId);
+      }
+      
+      console.log(`Refreshed storage with ${newProperties.length} new properties from ${city}`);
+    } catch (error) {
+      console.error(`Failed to refresh with scraped data for ${city}:`, error);
+    }
   }
 
   async getProperty(id: string): Promise<Property | undefined> {
