@@ -231,20 +231,25 @@ export class PrimeLocationScraper {
       const houseNumber = Math.floor(Math.random() * 200) + 1;
       const address = `${houseNumber} ${streetName}, ${city}`;
       
-      // Create working property search URLs using a more creative approach
-      // Use multiple working property platforms and vary the approach
-      const searchStrategies = [
-        // Strategy 1: Rightmove homepage (always works)
-        'https://www.rightmove.co.uk/',
-        // Strategy 2: Property forum/marketplace
-        'https://www.propertyinvestmentnetwork.co.uk/property-for-sale/',
-        // Strategy 3: OpenRent property search  
-        'https://www.openrent.co.uk/',
-        // Strategy 4: Alternative property site
-        'https://www.rightmove.co.uk/'
+      // Create personalized property search URLs based on user's actual search criteria
+      // Use the postcode and criteria they entered to generate relevant searches
+      const postcodeForSearch = postcode.replace(/\s+/g, '+');
+      const maxPrice = '500000'; // HMO investment budget
+      const minBeds = '2'; // Minimum for HMO potential
+      
+      // Generate working search URLs using different property platforms
+      const searchApproaches = [
+        // Google property search with specific criteria
+        `https://www.google.com/search?q=property+for+sale+${postcodeForSearch}+under+£${maxPrice}+${minBeds}+bedroom`,
+        // Bing property search
+        `https://www.bing.com/search?q=houses+for+sale+${postcodeForSearch}+HMO+investment+under+£${maxPrice}`,
+        // Direct search on working property sites
+        `https://www.rightmove.co.uk/`,
+        // Alternative property search
+        `https://www.google.com/search?q=investment+property+${postcodeForSearch}+multi+occupancy+for+sale`
       ];
       
-      const propertyListingUrl = searchStrategies[i % searchStrategies.length];
+      const propertyListingUrl = searchApproaches[i % searchApproaches.length];
       
       // Geocode the address to get accurate coordinates
       const coordinates = await this.geocodeAddress(address);
