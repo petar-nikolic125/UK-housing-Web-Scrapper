@@ -152,3 +152,9 @@ The application uses a hybrid approach where the Express server serves both the 
 - **Google Custom Search Engine ID**: Required for site-specific searches
 - **Playwright Dependencies**: Browser automation for property detail extraction
 - **PostgreSQL Database**: For production property storage and search history
+
+### Deployment Configuration (Updated July 30, 2025)
+- **Replit Deployment**: Fully configured for native Replit deployment with single-server architecture
+- **Vercel Deployment**: Added vercel.json configuration with serverless API functions
+- **Migration Complete**: Successfully migrated from Replit Agent to standard Replit environment
+- **Security Enhanced**: Proper client/server separation and robust security practices implemented
