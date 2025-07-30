@@ -231,13 +231,12 @@ export class PrimeLocationScraper {
       const houseNumber = Math.floor(Math.random() * 200) + 1;
       const address = `${houseNumber} ${streetName}, ${city}`;
       
-      // Generate Google search URLs that always work and show real property listings
-      // This approach bypasses bot protection by using Google's search results
-      const searchQuery = encodeURIComponent(`${address} property for sale under £500000 bedrooms HMO investment`);
-      const propertyListingUrl = `https://www.google.com/search?q=${searchQuery}&tbm=&oq=&gs_lcp=`;
+      // Use OnTheMarket which has working search URLs for property listings
+      const cityForUrl = city.toLowerCase().replace(/\s+/g, '-');
+      const postcodeArea = postcode.substring(0, 2).toLowerCase();
       
-      // Alternative: Use a working property portal (OnTheMarket has less bot protection)
-      // const backupUrl = `https://www.onthemarket.com/for-sale/property/${city.toLowerCase()}/?min-bedrooms=2&max-price=500000`;
+      // Create working OnTheMarket search URLs with HMO-appropriate filters
+      const propertyListingUrl = `https://www.onthemarket.com/for-sale/property/${cityForUrl}/?min-bedrooms=2&max-bedrooms=6&max-price=500000&view=list&sort-by=price-asc`;
       
       // Geocode the address to get accurate coordinates
       const coordinates = await this.geocodeAddress(address);

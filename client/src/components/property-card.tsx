@@ -58,7 +58,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               className="flex items-center justify-center space-x-2"
             >
               <ExternalLink size={16} />
-              <span>Search Property Online</span>
+              <span>View Similar Properties</span>
             </a>
           </Button>
         </div>
