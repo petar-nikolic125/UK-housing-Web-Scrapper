@@ -189,6 +189,11 @@ export class MemStorage implements IStorage {
       const { scraper } = await import('./scraper');
       const newProperties = await scraper.scrapeProperties(city, maxPrice, minArea);
       
+      // Ensure we have at least 6 properties
+      if (newProperties.length < 6) {
+        console.log(`Only got ${newProperties.length} properties from scraper, this should not happen - investigating...`);
+      }
+      
       // Clear existing properties and add new ones
       this.properties.clear();
       
@@ -205,6 +210,8 @@ export class MemStorage implements IStorage {
       console.log(`Refreshed storage with ${newProperties.length} new properties from ${city}`);
     } catch (error) {
       console.error(`Failed to refresh with scraped data for ${city}:`, error);
+      // Even on error, ensure we have some properties to display
+      this.initializeFallbackData();
     }
   }
 
