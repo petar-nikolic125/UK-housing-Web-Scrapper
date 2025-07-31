@@ -110,7 +110,7 @@ export default function PropertyGrid({ filters, onFiltersChange }: PropertyGridP
           <p className="text-secondary text-sm mt-2">Try adjusting your search filters.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr">
           {properties.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}

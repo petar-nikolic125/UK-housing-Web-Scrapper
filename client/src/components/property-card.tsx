@@ -20,17 +20,17 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
       {/* Image */}
-      <div className="relative">
+      <div className="relative h-48 flex-shrink-0">
         <img 
           src={property.imageUrl || "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600"} 
           alt={`${property.address} property exterior`}
-          className="w-full h-48 object-cover"
+          className="w-full h-full object-cover"
         />
         
         {/* HMO Suitable Badge */}
-        <div className="absolute top-3 left-3 bg-hmo-green text-white px-3 py-1 rounded-full text-sm font-medium">
+        <div className="absolute top-3 left-3 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium shadow-md">
           HMO Suitable
         </div>
         
@@ -45,11 +45,12 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           />
         </button>
         
-        {/* View on PrimeLocation Button */}
+        {/* View Property Button */}
         <div className="absolute bottom-3 left-3 right-3">
           <Button 
             asChild
-            className="w-full bg-hmo-blue hover:bg-blue-600 text-white"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+            size="sm"
           >
             <a 
               href={property.primeLocationUrl || "#"} 
@@ -58,36 +59,42 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               className="flex items-center justify-center space-x-2"
             >
               <ExternalLink size={16} />
-              <span>Search Area</span>
+              <span>View Property</span>
             </a>
           </Button>
         </div>
       </div>
       
       {/* Content */}
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-grow">
         {/* Address */}
-        <h3 className="font-semibold text-primary text-lg mb-2">
+        <h3 className="font-semibold text-gray-900 text-lg mb-3 line-clamp-2 min-h-[3.5rem]">
           {property.address}
         </h3>
         
         {/* Price and Size */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-2xl font-bold hmo-green">
+        <div className="flex items-start justify-between mb-4">
+          <div className="text-2xl font-bold text-green-600">
             {formatPrice(property.price)}
           </div>
-          <div className="flex items-center space-x-4 text-sm">
-            <Badge className="bg-blue-50 text-blue-700 border-blue-300">
+          <div className="flex flex-col items-end space-y-1">
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
               {property.size}sqm
             </Badge>
-            <Badge className={property.isArticle4 ? "bg-red-50 text-red-700 border-red-300" : "bg-green-50 text-green-700 border-green-300"}>
+            <Badge 
+              variant="secondary" 
+              className={property.isArticle4 
+                ? "bg-red-50 text-red-700 border-red-200 text-xs" 
+                : "bg-green-50 text-green-700 border-green-200 text-xs"
+              }
+            >
               {property.isArticle4 ? "Article 4" : "Non-Article 4"}
             </Badge>
           </div>
         </div>
         
         {/* Property Details */}
-        <div className="flex items-center space-x-4 text-secondary text-sm mb-4">
+        <div className="flex items-center space-x-4 text-gray-600 text-sm mb-4">
           <div className="flex items-center space-x-1">
             <Bed size={16} />
             <span>{property.bedrooms} bed</span>
@@ -111,21 +118,22 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </div>
         
         {/* Description */}
-        <p className="text-secondary text-sm mb-4 line-clamp-2">
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">
           {property.description}
         </p>
         
         {/* Financial Info */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div className="text-center">
-            <div className="text-sm text-secondary">Left in Deal:</div>
-            <div className="font-semibold text-orange-600">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
+          <div className="text-center flex-1">
+            <div className="text-xs text-gray-500 mb-1">Left in Deal</div>
+            <div className="font-semibold text-orange-600 text-sm">
               {property.leftInDeal ? formatPrice(property.leftInDeal) : "TBC"}
             </div>
           </div>
-          <div className="text-center">
-            <div className="text-sm text-secondary">Yearly Profit:</div>
-            <div className="font-semibold hmo-green">
+          <div className="w-px h-8 bg-gray-200 mx-3"></div>
+          <div className="text-center flex-1">
+            <div className="text-xs text-gray-500 mb-1">Yearly Profit</div>
+            <div className="font-semibold text-green-600 text-sm">
               {property.yearlyProfit ? formatPrice(property.yearlyProfit) : "TBC"}
             </div>
           </div>
