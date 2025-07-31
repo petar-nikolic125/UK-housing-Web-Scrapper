@@ -1,4 +1,4 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -6,16 +6,20 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// ───────────────────────────────────────────────────────────────────────────────
+// Request logger (only /api/*)
+// ───────────────────────────────────────────────────────────────────────────────
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse: unknown | undefined;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
+  const originalResJson = res.json.bind(res);
+  res.json = function (bodyJson: unknown, ...args: unknown[]) {
     capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+    // @ts-ignore – spread overload isn’t worth the hassle here
+    return originalResJson(bodyJson, ...args);
+  } as typeof res.json;
 
   res.on("finish", () => {
     const duration = Date.now() - start;
@@ -24,11 +28,7 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
+      if (logLine.length > 80) logLine = logLine.slice(0, 79) + "…";
       log(logLine);
     }
   });
@@ -36,50 +36,57 @@ app.use((req, res, next) => {
   next();
 });
 
+// ───────────────────────────────────────────────────────────────────────────────
+// Demo auto‑refresh (scraper)
+// ───────────────────────────────────────────────────────────────────────────────
 (async () => {
-  // Auto-refresh properties every 2 minutes with new scraped data for demo purposes
+  // Refresh every 2 min so the demo always has fresh data
   setInterval(async () => {
     try {
-      const cities = ['Birmingham', 'Manchester', 'Leeds', 'Liverpool', 'Sheffield'];
+      const cities = [
+        "Birmingham",
+        "Manchester",
+        "Leeds",
+        "Liverpool",
+        "Sheffield",
+      ];
       const randomCity = cities[Math.floor(Math.random() * cities.length)];
-      
-      const { storage } = await import('./storage');
-      await (storage as any).refreshWithScrapedData?.(randomCity, 500000, 90);
-      console.log(`Auto-refreshed properties with new scraped data from ${randomCity}`);
-    } catch (error) {
-      console.error('Failed to auto-refresh properties:', error);
-    }
-  }, 2 * 60 * 1000); // 2 minutes for demo
 
+      const { storage } = await import("./storage");
+      await (storage as any).refreshWithScrapedData?.(randomCity, 500000, 90);
+      console.log(`Auto‑refreshed properties with new scraped data from ${randomCity}`);
+    } catch (err) {
+      console.error("Failed to auto‑refresh properties:", err);
+    }
+  }, 2 * 60 * 1000);
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // API routes
+  // ─────────────────────────────────────────────────────────────────────────────
   const server = await registerRoutes(app);
 
+  // Central error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
+    const status = err.status ?? err.statusCode ?? 500;
+    const message = err.message ?? "Internal Server Error";
     res.status(status).json({ message });
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Front‑end (Vite in dev, static in prod)
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Start server – bind explicitly to HOST; drop reusePort (caused ENOTSUP)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const PORT = Number(process.env.PORT ?? 3000);
+  const HOST = process.env.HOST ?? "127.0.0.1";
+
+  server.listen(PORT, HOST, () => {
+    log(`🚀  API & client ready → http://${HOST}:${PORT}`);
   });
 })();

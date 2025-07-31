@@ -9,7 +9,7 @@ import { type PropertyFilters } from "@shared/schema";
 export default function Home() {
   const [filters, setFilters] = useState<PropertyFilters>({
     query: "Birmingham",
-    radius: 10,
+    radius: 25,
     maxPrice: 500000,
     minSize: 90,
     excludeArticle4: true,
