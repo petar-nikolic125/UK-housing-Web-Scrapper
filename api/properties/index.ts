@@ -62,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         break;
       case 'profit':
       default:
-        filteredProperties.sort((a, b) => b.yearlyProfit - a.yearlyProfit);
+        filteredProperties.sort((a, b) => (b.yearlyProfit || 0) - (a.yearlyProfit || 0));
         break;
     }
 

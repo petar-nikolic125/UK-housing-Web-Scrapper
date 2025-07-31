@@ -22,11 +22,20 @@ export default function PropertyGrid({ filters, onFiltersChange }: PropertyGridP
       if (filters.excludeArticle4) searchParams.set('excludeArticle4', 'true');
       if (filters.sortBy) searchParams.set('sortBy', filters.sortBy);
 
-      const response = await fetch(`/api/properties?${searchParams}`);
+      const response = await fetch(`/api/properties?${searchParams}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
       if (!response.ok) {
-        throw new Error('Failed to fetch properties');
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
+        throw new Error(`Failed to fetch properties: ${response.status}`);
       }
-      return response.json();
+      
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     }
   });
 

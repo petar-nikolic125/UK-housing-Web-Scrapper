@@ -35,11 +35,19 @@ export default function ScraperInterface() {
     mutationFn: async () => {
       const res = await fetch("/api/properties/refresh", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({ city: "Birmingham" }),
       });
-      if (!res.ok) throw new Error((await res.json()).message || "Failed to refresh properties");
-      return (await res.json()) as ScrapeResponse;
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Refresh API Error:', errorText);
+        throw new Error(`Failed to refresh properties: ${res.status}`);
+      }
+      const data = await res.json();
+      return data as ScrapeResponse;
     },
     onSuccess: (data) => {
       toast({
@@ -57,11 +65,19 @@ export default function ScraperInterface() {
     mutationFn: async ({ city, maxPrice, minArea }: { city: string; maxPrice: number; minArea: number }) => {
       const res = await fetch("/api/properties/scrape", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({ city, maxPrice, minArea }),
       });
-      if (!res.ok) throw new Error((await res.json()).message || "Failed to scrape properties");
-      return (await res.json()) as ScrapeResponse;
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Scrape API Error:', errorText);
+        throw new Error(`Failed to scrape properties: ${res.status}`);
+      }
+      const data = await res.json();
+      return data as ScrapeResponse;
     },
     onSuccess: (data) => {
       toast({

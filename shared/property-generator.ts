@@ -262,6 +262,32 @@ export function generatePropertiesForCity(city: string, count: number = 6): Inse
   return properties;
 }
 
+// Generate properties with simplified JSON structure for Vercel compatibility
+export function generateSimplifiedProperties(city: string, count: number = 6): any[] {
+  const properties = generatePropertiesForCity(city, count);
+  
+  return properties.map((prop, index) => ({
+    id: `generated-${city.toLowerCase()}-${index}`,
+    address: prop.address,
+    price: prop.price,
+    size: prop.size,
+    bedrooms: prop.bedrooms,
+    bathrooms: prop.bathrooms,
+    latitude: prop.latitude || null,
+    longitude: prop.longitude || null,
+    imageUrl: prop.imageUrl || null,
+    primeLocationUrl: prop.primeLocationUrl || null,
+    description: prop.description || '',
+    hasGarden: prop.hasGarden || false,
+    hasParking: prop.hasParking || false,
+    isArticle4: prop.isArticle4 || false,
+    yearlyProfit: prop.yearlyProfit || 0,
+    leftInDeal: prop.leftInDeal || 0,
+    postcode: prop.postcode,
+    createdAt: new Date().toISOString()
+  }));
+}
+
 // Get all available cities
 export function getAvailableCities(): string[] {
   return Object.keys(SEARCH_SEEDS);
