@@ -27,7 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       search: search as string,
     };
 
-    const properties = await storage.getProperties(filters, Number(limit), Number(offset));
+    const properties = await storage.getProperties(filters);
     res.json(properties);
   } catch (error) {
     console.error('Error fetching properties:', error);

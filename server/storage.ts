@@ -44,8 +44,9 @@ export class MemStorage implements IStorage {
         const propertyWithId: Property = {
           id,
           ...property,
+          latitude: property.latitude ?? null,
+          longitude: property.longitude ?? null,
           createdAt: new Date(),
-          updatedAt: new Date(),
         };
         this.properties.set(id, propertyWithId);
       }
@@ -174,6 +175,8 @@ export class MemStorage implements IStorage {
       const fullProperty: Property = {
         ...property,
         id,
+        latitude: property.latitude ?? null,
+        longitude: property.longitude ?? null,
         createdAt: new Date()
       };
       this.properties.set(id, fullProperty);
@@ -202,6 +205,8 @@ export class MemStorage implements IStorage {
         const propertyWithId: Property = {
           id,
           ...property,
+          latitude: property.latitude ?? null,
+          longitude: property.longitude ?? null,
           createdAt: new Date(),
         };
         this.properties.set(id, propertyWithId);
@@ -268,6 +273,8 @@ export class MemStorage implements IStorage {
     const newProperty: Property = {
       ...property,
       id,
+      latitude: property.latitude ?? null,
+      longitude: property.longitude ?? null,
       createdAt: new Date()
     };
     this.properties.set(id, newProperty);
