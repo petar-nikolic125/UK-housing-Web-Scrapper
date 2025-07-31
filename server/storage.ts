@@ -32,7 +32,13 @@ export class MemStorage implements IStorage {
     try {
       // First try hardcoded properties
       const { getHardcodedPropertiesForCity } = await import('@shared/hardcoded-properties');
-      const hardcodedProperties = getHardcodedPropertiesForCity('Birmingham');
+      // Get Birmingham properties and prioritize premium Selly Oak listings first
+      const birminghamProperties = getHardcodedPropertiesForCity('Birmingham');
+      const sheffieldProperties = getHardcodedPropertiesForCity('Sheffield');
+      
+      // Combine Birmingham + Premium Sheffield HMOs for front page display
+      const premiumSheffieldHMOs = sheffieldProperties.slice(-5); // Last 5 are the premium ones
+      const hardcodedProperties = [...birminghamProperties, ...premiumSheffieldHMOs];
       
       if (hardcodedProperties.length > 0) {
         for (const property of hardcodedProperties) {

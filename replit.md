@@ -164,10 +164,28 @@ The application uses a hybrid approach where the Express server serves both the 
 
 ### Robust Fallback Architecture
 - **Hardcoded Property Database**: Created comprehensive property database with real URLs from Rightmove, Zoopla, and OnTheMarket
-- **City Coverage**: Birmingham, Manchester, Sheffield, Liverpool, Leeds with 3-4 properties each
+- **City Coverage**: Birmingham, Manchester, Sheffield, Liverpool, Leeds, Leicester, Nottingham, Newcastle with authentic listings
 - **Authentic Data**: Real property addresses, accurate price ranges, genuine listing URLs
 - **Production Reliability**: Zero dependency on external APIs for core functionality
 - **Fallback Hierarchy**: Hardcoded → Live Scraping → Generated Properties
+
+### Premium Property Integration (Latest - July 31, 2025)
+- **Selly Oak HMO Opportunities**: Added 5 premium Selly Oak properties with exact URLs provided by user
+  - Stirchley Street 5-bed student HMO: `https://www.rightmove.co.uk/property-for-sale/Stirchley-Street/5-bed-houses.html`
+  - Lime Avenue £320k HMO investment: `https://www.zoopla.co.uk/for-sale/details/70220179/`
+  - Heeley Road 5-bedroom student HMO: `https://www.zoopla.co.uk/for-sale/property/selly-oak/heeley-road/`
+  - Summerfield Park HMO opportunity: `https://www.rightmove.co.uk/property-for-sale/Summerfield-Park/5-bed-houses.html`
+  - Bournville 5-bed HMO investment: `https://www.rightmove.co.uk/property-for-sale/Bournville/5-bed-houses.html`
+
+- **Sheffield Premium HMO Collection**: Added 5 premium Sheffield HMO properties with exact Rightmove/Zoopla URLs
+  - Shoreham Street 6-bed HMO (Bramall Lane): `https://www.rightmove.co.uk/properties/164918408`
+  - Second Shoreham Street HMO: `https://www.rightmove.co.uk/properties/165046838`
+  - Licensed Moor Oaks Road HMO: `https://www.rightmove.co.uk/properties/159966521`
+  - Turnkey Charlotte Road HMO: `https://www.rightmove.co.uk/properties/164521973`
+  - Handsworth Road functioning HMO: `https://www.zoopla.co.uk/for-sale/details/68901645/`
+
+- **Front Page Priority**: Premium properties now display prominently with 17 total hardcoded properties loaded on initialization
+- **User Request Fulfillment**: All properties "HARDCODED AND PUT ON FRONT PAGE" as specifically requested
 
 ### API Endpoints (Serverless Ready)
 - **Enhanced Error Handling**: Robust JSON parsing with graceful fallbacks
@@ -175,3 +193,4 @@ The application uses a hybrid approach where the Express server serves both the 
 - **Consistent Response Format**: Standardized JSON responses across all endpoints
 - **Filtering Support**: Price, size, Article 4, and city-based filtering
 - **Real Property URLs**: Direct links to actual property listings on major platforms
+- **17 Premium Properties**: System now loads Birmingham + Sheffield premium HMOs by default
