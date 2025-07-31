@@ -204,7 +204,7 @@ export function generateRealisticProperty(city: string): InsertProperty {
   const bedrooms = Math.floor(Math.random() * 3) + 3; // 3-5 bedrooms
   const bathrooms = Math.floor(Math.random() * 2) + 1; // 1-2 bathrooms
   const size = Math.floor(Math.random() * 40) + 90; // 90-130 sqm
-  const basePrice = Math.floor(Math.random() * 200000) + 180000; // £180k-380k
+  const basePrice = Math.floor(Math.random() * 150000) + 250000; // £250k-400k
   
   // Calculate realistic profit based on size and bedrooms
   const weeklyRent = bedrooms * 85 + (size * 0.5); // Rough calculation
@@ -230,7 +230,7 @@ export function generateRealisticProperty(city: string): InsertProperty {
     description: DESCRIPTION_TEMPLATES[Math.floor(Math.random() * DESCRIPTION_TEMPLATES.length)] + ` with ${bedrooms} bedrooms and ${bathrooms} bathrooms.`,
     hasGarden: Math.random() > 0.3,
     hasParking: Math.random() > 0.4,
-    isArticle4: Math.random() > 0.8, // 20% chance of Article 4
+    isArticle4: Math.random() > 0.9, // 10% chance of Article 4
     yearlyProfit,
     leftInDeal,
     postcode: generatePostcode(city)
