@@ -1,0 +1,61 @@
+The red banner is coming from Vercel’s configuration validator. It’s telling you that your vercel.json file defines both a top-level functions section and a builds array—even though Vercel’s schema only allows one or the other, never both, in the same file. 
+GitHub
+Stack Overflow
+
+When Vercel detects this clash it aborts the deployment with the exact message you see: “The functions property cannot be used in conjunction with the builds property. Please remove one of them.” 
+Vercel Community
+
+Why the two keys are mutually exclusive
+builds (legacy) defines how files should be built into either static assets or Serverless Functions by pointing each file at a builder such as @vercel/node or @vercel/python. 
+Vercel
+
+functions (newer) is a convenience shortcut that lets you tweak limits—memory, maxDuration, etc.—for automatically detected Serverless Function files. It assumes Vercel’s default File-System-Routing and doesn’t work if you manually list builders under builds. 
+Vercel Community
+
+Because the two approaches configure the same runtime in incompatible ways, Vercel forces you to pick one.
+
+How to fix
+1 — If you want custom builders (keep builds, drop functions)
+json
+Copy
+Edit
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/**/*.ts", "use": "@vercel/node" },
+    { "src": "frontend/package.json", "use": "@vercel/next" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1.ts" }
+  ]
+}
+Remove the entire functions block.
+Use per-file builder config for any memory / duration needs instead (e.g. "use": "@vercel/node@2.13.0", "config": { "maxDuration": 60 }).
+
+2 — If you’re happy with Vercel’s automatic builders (keep functions, drop builds)
+json
+Copy
+Edit
+{
+  "version": 2,
+  "functions": {
+    "api/**/*.[jt]s": { "maxDuration": 60, "memory": 1024 }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1.js" }
+  ]
+}
+Delete the builds array.
+All files under api/ (or /pages/api for Next.js) will be treated as Node Serverless Functions, and you only override limits where needed. 
+GitHub
+
+Quick checklist before you redeploy
+Commit the updated vercel.json with only one of the keys.
+
+Push → Vercel will trigger a fresh build; the error banner should disappear.
+
+Open the build logs—any remaining issues will be unrelated (package installs, env vars, etc.). 
+Vercel
+Vercel Community
+
+Once the conflicting key is removed, the deployment should proceed normally.

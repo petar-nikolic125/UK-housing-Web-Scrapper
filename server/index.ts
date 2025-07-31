@@ -83,8 +83,8 @@ app.use((req, res, next) => {
   // ─────────────────────────────────────────────────────────────────────────────
   // Start server – bind explicitly to HOST; drop reusePort (caused ENOTSUP)
   // ─────────────────────────────────────────────────────────────────────────────
-  const PORT = Number(process.env.PORT ?? 3000);
-  const HOST = process.env.HOST ?? "127.0.0.1";
+  const PORT = Number(process.env.PORT ?? 5000); // Default to 5000 to match .replit config  
+  const HOST = process.env.HOST ?? "0.0.0.0"; // Use 0.0.0.0 for accessible port binding
 
   server.listen(PORT, HOST, () => {
     log(`🚀  API & client ready → http://${HOST}:${PORT}`);
