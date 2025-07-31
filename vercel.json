@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/public",
-  "functions": {
-    "api/serverless.ts": {
-      "runtime": "@vercel/node"
-    }
-  }
+  "builds": [
+    { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist/public" } },
+    { "src": "api/serverless.ts", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/serverless.ts" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
