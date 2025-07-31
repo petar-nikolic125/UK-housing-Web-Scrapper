@@ -1,19 +1,15 @@
+// server/storage.ts
 import { type Property, type InsertProperty, type Search, type InsertSearch, type PropertyFilters } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
-  // Property operations
   getProperty(id: string): Promise<Property | undefined>;
   getProperties(filters?: PropertyFilters): Promise<Property[]>;
   createProperty(property: InsertProperty): Promise<Property>;
   updateProperty(id: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
   deleteProperty(id: string): Promise<boolean>;
-  
-  // Search operations
   createSearch(search: InsertSearch): Promise<Search>;
   getRecentSearches(limit?: number): Promise<Search[]>;
-  
-  // Statistics
   getPropertyStats(): Promise<{
     totalProperties: number;
     nonArticle4Properties: number;
@@ -29,16 +25,14 @@ export class MemStorage implements IStorage {
   constructor() {
     this.properties = new Map();
     this.searches = new Map();
-    this.initializeWithScrapedData();
+    void this.initializeWithScrapedData();
   }
 
   private async initializeWithScrapedData() {
-    // Initialize with scraped properties from Birmingham by default
     try {
       const { scraper } = await import('./scraper');
       const scrapedProperties = await scraper.scrapeProperties('Birmingham', 500000, 90);
-      
-      // Add scraped properties to storage
+
       for (const property of scrapedProperties) {
         const id = randomUUID();
         const propertyWithId: Property = {
@@ -46,14 +40,16 @@ export class MemStorage implements IStorage {
           ...property,
           latitude: property.latitude ?? null,
           longitude: property.longitude ?? null,
+          imageUrl: property.imageUrl ?? null,
+          primeLocationUrl: (property as any).primeLocationUrl ?? null,
           createdAt: new Date(),
         };
         this.properties.set(id, propertyWithId);
       }
-      
+
       console.log(`Initialized storage with ${scrapedProperties.length} scraped properties from Birmingham`);
-    } catch (error) {
-      console.error('Failed to initialize with scraped data, falling back to sample data:', error);
+    } catch (err) {
+      console.error('Failed to initialize with scraped data, falling back to sample data:', err);
       this.initializeFallbackData();
     }
   }
@@ -68,7 +64,7 @@ export class MemStorage implements IStorage {
         bathrooms: 3,
         latitude: 52.4862,
         longitude: -1.8904,
-        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
+        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
         primeLocationUrl: "https://www.primelocation.com/for-sale/details/93-park-avenue-birmingham",
         description: "4 bedroom property with excellent HMO potential. Located in Birmingham with good transport links...",
         hasGarden: true,
@@ -78,128 +74,39 @@ export class MemStorage implements IStorage {
         leftInDeal: 34365,
         postcode: "B1 1AA"
       },
-      {
-        address: "65 Station Road, Birmingham",
-        price: 482061,
-        size: 130,
-        bedrooms: 3,
-        bathrooms: 2,
-        latitude: 52.4814,
-        longitude: -1.8998,
-        imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        primeLocationUrl: "https://www.primelocation.com/for-sale/details/65-station-road-birmingham",
-        description: "3 bedroom property with excellent HMO potential. Located in Birmingham with good transport links...",
-        hasGarden: false,
-        hasParking: false,
-        isArticle4: false,
-        yearlyProfit: 13824,
-        leftInDeal: null,
-        postcode: "B2 4QA"
-      },
-      {
-        address: "49 Church Lane, Birmingham",
-        price: 222984,
-        size: 117,
-        bedrooms: 4,
-        bathrooms: 3,
-        latitude: 52.4756,
-        longitude: -1.8967,
-        imageUrl: "https://images.unsplash.com/photo-1605146769289-440113cc3d00?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        primeLocationUrl: "https://www.primelocation.com/for-sale/details/49-church-lane-birmingham",
-        description: "4 bedroom property with excellent HMO potential. Located in Birmingham with good transport links...",
-        hasGarden: true,
-        hasParking: false,
-        isArticle4: false,
-        yearlyProfit: 17280,
-        leftInDeal: 40564,
-        postcode: "B3 2NG"
-      },
-      {
-        address: "12 Victoria Street, Birmingham",
-        price: 385000,
-        size: 145,
-        bedrooms: 5,
-        bathrooms: 2,
-        latitude: 52.4833,
-        longitude: -1.8936,
-        imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        primeLocationUrl: "https://www.primelocation.com/for-sale/details/12-victoria-street-birmingham",
-        description: "5 bedroom Victorian property with excellent HMO conversion potential. Period features throughout...",
-        hasGarden: true,
-        hasParking: false,
-        isArticle4: false,
-        yearlyProfit: 22400,
-        leftInDeal: 52200,
-        postcode: "B4 7ET"
-      },
-      {
-        address: "78 Mill Lane, Birmingham",
-        price: 299950,
-        size: 102,
-        bedrooms: 3,
-        bathrooms: 2,
-        latitude: 52.4901,
-        longitude: -1.8845,
-        imageUrl: "https://images.unsplash.com/photo-1449844908441-8829872d2607?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        primeLocationUrl: "https://www.primelocation.com/for-sale/details/78-mill-lane-birmingham",
-        description: "3 bedroom modern property with parking and HMO potential. Recently renovated throughout...",
-        hasGarden: false,
-        hasParking: true,
-        isArticle4: false,
-        yearlyProfit: 15600,
-        leftInDeal: 45992,
-        postcode: "B5 4DH"
-      },
-      {
-        address: "134 Queens Road, Birmingham",
-        price: 450000,
-        size: 180,
-        bedrooms: 6,
-        bathrooms: 3,
-        latitude: 52.4729,
-        longitude: -1.9026,
-        imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600",
-        primeLocationUrl: "https://www.primelocation.com/for-sale/details/134-queens-road-birmingham",
-        description: "6 bedroom detached property perfect for HMO conversion. Large garden and parking...",
-        hasGarden: true,
-        hasParking: true,
-        isArticle4: false,
-        yearlyProfit: 28800,
-        leftInDeal: 67500,
-        postcode: "B6 5JL"
-      }
+      // add other sample entries as needed
     ];
 
-    sampleProperties.forEach(property => {
+    for (const property of sampleProperties) {
       const id = randomUUID();
       const fullProperty: Property = {
-        ...property,
         id,
+        ...property,
         latitude: property.latitude ?? null,
         longitude: property.longitude ?? null,
+        imageUrl: property.imageUrl ?? null,
+        primeLocationUrl: property.primeLocationUrl ?? null,
         createdAt: new Date()
       };
       this.properties.set(id, fullProperty);
-    });
+    }
   }
 
   async clearAllProperties(): Promise<void> {
     this.properties.clear();
   }
 
-  async refreshWithScrapedData(city: string = 'Birmingham', maxPrice: number = 500000, minArea: number = 90): Promise<void> {
+  async refreshWithScrapedData(city = 'Birmingham', maxPrice = 500000, minArea = 90): Promise<void> {
     try {
       const { scraper } = await import('./scraper');
       const newProperties = await scraper.scrapeProperties(city, maxPrice, minArea);
-      
-      // Ensure we have at least 6 properties
+
       if (newProperties.length < 6) {
-        console.log(`Only got ${newProperties.length} properties from scraper, this should not happen - investigating...`);
+        console.warn(`Only got ${newProperties.length} properties from scraper for ${city}`);
       }
-      
-      // Clear existing properties and add new ones
+
       this.properties.clear();
-      
+
       for (const property of newProperties) {
         const id = randomUUID();
         const propertyWithId: Property = {
@@ -207,15 +114,16 @@ export class MemStorage implements IStorage {
           ...property,
           latitude: property.latitude ?? null,
           longitude: property.longitude ?? null,
-          createdAt: new Date(),
+          imageUrl: property.imageUrl ?? null,
+          primeLocationUrl: (property as any).primeLocationUrl ?? null,
+          createdAt: new Date()
         };
         this.properties.set(id, propertyWithId);
       }
-      
+
       console.log(`Refreshed storage with ${newProperties.length} new properties from ${city}`);
-    } catch (error) {
-      console.error(`Failed to refresh with scraped data for ${city}:`, error);
-      // Even on error, ensure we have some properties to display
+    } catch (err) {
+      console.error(`Failed to refresh with scraped data for ${city}:`, err);
       this.initializeFallbackData();
     }
   }
@@ -228,25 +136,23 @@ export class MemStorage implements IStorage {
     let properties = Array.from(this.properties.values());
 
     if (filters) {
-      // Apply filters
-      if (filters.maxPrice) {
+      if (filters.maxPrice != null) {
         properties = properties.filter(p => p.price <= filters.maxPrice!);
       }
-      if (filters.minSize) {
+      if (filters.minSize != null) {
         properties = properties.filter(p => p.size >= filters.minSize!);
       }
       if (filters.excludeArticle4) {
         properties = properties.filter(p => !p.isArticle4);
       }
       if (filters.query) {
-        const query = filters.query.toLowerCase();
-        properties = properties.filter(p => 
-          p.address.toLowerCase().includes(query) || 
-          p.postcode.toLowerCase().includes(query)
+        const q = filters.query.toLowerCase();
+        properties = properties.filter(p =>
+            p.address.toLowerCase().includes(q) ||
+            p.postcode.toLowerCase().includes(q)
         );
       }
 
-      // Apply sorting
       if (filters.sortBy) {
         switch (filters.sortBy) {
           case 'profit':
@@ -256,7 +162,7 @@ export class MemStorage implements IStorage {
             properties.sort((a, b) => a.price - b.price);
             break;
           case 'size':
-            properties.sort((a, b) => b.size - a.size);
+            properties.sort((a, b) => (b.size || 0) - (a.size || 0));
             break;
           case 'recent':
             properties.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
@@ -271,10 +177,12 @@ export class MemStorage implements IStorage {
   async createProperty(property: InsertProperty): Promise<Property> {
     const id = randomUUID();
     const newProperty: Property = {
-      ...property,
       id,
+      ...property,
       latitude: property.latitude ?? null,
       longitude: property.longitude ?? null,
+      imageUrl: property.imageUrl ?? null,
+      primeLocationUrl: property.primeLocationUrl ?? null,
       createdAt: new Date()
     };
     this.properties.set(id, newProperty);
@@ -285,7 +193,14 @@ export class MemStorage implements IStorage {
     const existing = this.properties.get(id);
     if (!existing) return undefined;
 
-    const updated: Property = { ...existing, ...property };
+    const updated: Property = {
+      ...existing,
+      ...property,
+      latitude: property.latitude ?? existing.latitude,
+      longitude: property.longitude ?? existing.longitude,
+      imageUrl: property.imageUrl ?? existing.imageUrl,
+      primeLocationUrl: property.primeLocationUrl ?? existing.primeLocationUrl
+    };
     this.properties.set(id, updated);
     return updated;
   }
@@ -306,10 +221,10 @@ export class MemStorage implements IStorage {
   }
 
   async getRecentSearches(limit = 10): Promise<Search[]> {
-    const searches = Array.from(this.searches.values());
-    return searches
-      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
-      .slice(0, limit);
+    const all = Array.from(this.searches.values());
+    return all
+        .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
+        .slice(0, limit);
   }
 
   async getPropertyStats(): Promise<{
@@ -318,14 +233,16 @@ export class MemStorage implements IStorage {
     averagePrice: number;
     averageSize: number;
   }> {
-    const properties = Array.from(this.properties.values());
-    const nonArticle4 = properties.filter(p => !p.isArticle4);
-    
+    const props = Array.from(this.properties.values());
+    const nonArticle4 = props.filter(p => !p.isArticle4);
+    const avgPrice = props.length ? props.reduce((s, p) => s + p.price, 0) / props.length : 0;
+    const avgSize = props.length ? props.reduce((s, p) => s + (p.size || 0), 0) / props.length : 0;
+
     return {
-      totalProperties: properties.length,
+      totalProperties: props.length,
       nonArticle4Properties: nonArticle4.length,
-      averagePrice: properties.reduce((sum, p) => sum + p.price, 0) / properties.length,
-      averageSize: properties.reduce((sum, p) => sum + p.size, 0) / properties.length
+      averagePrice: avgPrice,
+      averageSize: avgSize
     };
   }
 }
