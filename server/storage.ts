@@ -30,6 +30,29 @@ export class MemStorage implements IStorage {
 
   private async initializeWithScrapedData() {
     try {
+      // First try hardcoded properties
+      const { getHardcodedPropertiesForCity } = await import('@shared/hardcoded-properties');
+      const hardcodedProperties = getHardcodedPropertiesForCity('Birmingham');
+      
+      if (hardcodedProperties.length > 0) {
+        for (const property of hardcodedProperties) {
+          const id = randomUUID();
+          const propertyWithId: Property = {
+            id,
+            ...property,
+            latitude: property.latitude ?? null,
+            longitude: property.longitude ?? null,
+            imageUrl: property.imageUrl ?? null,
+            primeLocationUrl: (property as any).primeLocationUrl ?? null,
+            createdAt: new Date(),
+          };
+          this.properties.set(id, propertyWithId);
+        }
+        console.log(`Initialized storage with ${hardcodedProperties.length} hardcoded properties from Birmingham`);
+        return;
+      }
+
+      // Fallback to scraper
       const { scraper } = await import('./scraper');
       const scrapedProperties = await scraper.scrapeProperties('Birmingham', 500000, 90);
 
