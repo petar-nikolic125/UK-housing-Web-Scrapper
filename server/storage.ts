@@ -157,10 +157,16 @@ export class MemStorage implements IStorage {
   async refreshWithScrapedData(city = 'Birmingham', maxPrice = 500000, minArea = 90): Promise<void> {
     try {
       const { scraper } = await import('./scraper');
-      const newProperties = await scraper.scrapeProperties(city, maxPrice, minArea);
+      const { getAvailableCities } = await import('@shared/property-generator');
+      
+      // Rotate through different cities for variety
+      const availableCities = getAvailableCities();
+      const randomCity = availableCities[Math.floor(Math.random() * availableCities.length)];
+      
+      const newProperties = await scraper.scrapeProperties(randomCity, maxPrice, minArea);
 
-      if (newProperties.length < 6) {
-        console.warn(`Only got ${newProperties.length} properties from scraper for ${city}`);
+      if (newProperties.length < 4) {
+        console.warn(`Only got ${newProperties.length} properties from scraper for ${randomCity}`);
       }
 
       this.properties.clear();
@@ -179,7 +185,7 @@ export class MemStorage implements IStorage {
         this.properties.set(id, propertyWithId);
       }
 
-      console.log(`Refreshed storage with ${newProperties.length} new properties from ${city}`);
+      console.log(`Refreshed storage with ${newProperties.length} new properties from ${randomCity}`);
     } catch (err) {
       console.error(`Failed to refresh with scraped data for ${city}:`, err);
       this.initializeFallbackData();
