@@ -1,12 +1,13 @@
-import express from "express";
-import { registerRoutes } from "../server/routes";
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { createApp } from "../server/app";
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+let app: any = null;
 
-// Initialize routes
-registerRoutes(app);
-
-// Export for Vercel
-export default app;
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (!app) {
+    app = await createApp();
+  }
+  
+  // Handle the request with Express app
+  app(req, res);
+}
