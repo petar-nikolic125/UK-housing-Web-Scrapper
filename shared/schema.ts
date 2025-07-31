@@ -31,6 +31,7 @@ export const searches = pgTable("searches", {
   maxPrice: integer("max_price").default(500000),
   minSize: integer("min_size").default(90),
   excludeArticle4: boolean("exclude_article4").default(true),
+  sortBy: varchar("sort_by", { enum: ['profit', 'price', 'size', 'recent'] }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

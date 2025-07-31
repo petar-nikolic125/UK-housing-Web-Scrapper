@@ -6,7 +6,8 @@ import {
   insertSearchSchema,
   type PropertyFilters,
   type InsertSearch,
-  type Search
+  type Search,
+  type Property
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -18,16 +19,11 @@ interface LHARate {
 }
 
 const searchFiltersSchema = z.object({
-  query: z.string().default(""),
-  radius: z.coerce.number().default(10),
-  maxPrice: z.coerce.number().nullable().optional(),
-  minSize: z.coerce.number().nullable().optional(),
-  excludeArticle4: z
-      .coerce
-      .boolean()
-      .nullable()
-      .optional()
-      .transform(v => v ?? false),
+  query: z.string().optional().default(""),
+  radius: z.coerce.number().optional().default(10),
+  maxPrice: z.coerce.number().optional(),
+  minSize: z.coerce.number().optional(),
+  excludeArticle4: z.coerce.boolean().optional().transform(v => v ?? false),
   sortBy: z.enum(['profit', 'price', 'size', 'recent']).optional(),
 });
 
@@ -44,10 +40,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const filters: PropertyFilters = {
-        query: parsed.query,
+        query: parsed.query || undefined,
         radius: parsed.radius,
-        maxPrice: parsed.maxPrice ?? undefined,
-        minSize: parsed.minSize ?? undefined,
+        maxPrice: parsed.maxPrice,
+        minSize: parsed.minSize,
         excludeArticle4: parsed.excludeArticle4,
         sortBy: parsed.sortBy
       };
@@ -96,11 +92,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const search = await storage.createSearch(searchData);
 
       const filters: PropertyFilters = {
-        query: searchData.query,
+        query: searchData.query || undefined,
         radius: searchData.radius,
-        maxPrice: searchData.maxPrice ?? undefined,
-        minSize: searchData.minSize ?? undefined,
-        excludeArticle4: searchData.excludeArticle4 ?? undefined,
+        maxPrice: searchData.maxPrice || undefined,
+        minSize: searchData.minSize || undefined,
+        excludeArticle4: searchData.excludeArticle4 || undefined,
         sortBy: searchData.sortBy
       };
 

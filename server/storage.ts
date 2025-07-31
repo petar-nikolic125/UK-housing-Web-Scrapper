@@ -74,7 +74,42 @@ export class MemStorage implements IStorage {
         leftInDeal: 34365,
         postcode: "B1 1AA"
       },
-      // add other sample entries as needed
+      {
+        address: "45 Victoria Road, Manchester",
+        price: 325000,
+        size: 112,
+        bedrooms: 5,
+        bathrooms: 2,
+        latitude: 53.4808,
+        longitude: -2.2426,
+        imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        primeLocationUrl: "https://www.primelocation.com/for-sale/details/45-victoria-road-manchester",
+        description: "Victorian terraced house ideal for HMO conversion. Close to universities and transport links.",
+        hasGarden: true,
+        hasParking: true,
+        isArticle4: false,
+        yearlyProfit: 22400,
+        leftInDeal: 42150,
+        postcode: "M1 2AB"
+      },
+      {
+        address: "78 Chapel Street, Leeds",
+        price: 189000,
+        size: 95,
+        bedrooms: 4,
+        bathrooms: 2,
+        latitude: 53.8008,
+        longitude: -1.5491,
+        imageUrl: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        primeLocationUrl: "https://www.primelocation.com/for-sale/details/78-chapel-street-leeds",
+        description: "Modern property perfect for student accommodation with excellent rental yields.",
+        hasGarden: false,
+        hasParking: false,
+        isArticle4: false,
+        yearlyProfit: 19200,
+        leftInDeal: 28350,
+        postcode: "LS1 3CD"
+      }
     ];
 
     for (const property of sampleProperties) {
